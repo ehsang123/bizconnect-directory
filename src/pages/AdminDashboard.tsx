@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -142,78 +143,101 @@ const AdminDashboard = () => {
           </p>
         </header>
 
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-base">Bulk import companies from CSV</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <p className="text-sm text-muted-foreground">
-              Export your Excel file as CSV and upload it here. Existing companies (by name or
-              website) will be skipped automatically.
-            </p>
-            <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
-              <input
-                type="file"
-                accept=".csv,text/csv"
-                onChange={(e) => handleImport(e.target.files?.[0] ?? null)}
-                className="text-sm"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid gap-6 md:grid-cols-[2fr,1fr]">
+          <div>
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="text-base">Bulk import companies from CSV</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Export your Excel file as CSV and upload it here. Existing companies (by name or
+                  website) will be skipped automatically.
+                </p>
+                <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
+                  <input
+                    type="file"
+                    accept=".csv,text/csv"
+                    onChange={(e) => handleImport(e.target.files?.[0] ?? null)}
+                    className="text-sm"
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-        {isLoading && <p className="text-muted-foreground">Loading pending submissions...</p>}
+            {isLoading && <p className="text-muted-foreground">Loading pending submissions...</p>}
 
-        {!isLoading && (!pendingCompanies || pendingCompanies.length === 0) && (
-          <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">
-              There are currently no pending company submissions.
-            </CardContent>
-          </Card>
-        )}
-
-        {!isLoading && pendingCompanies && pendingCompanies.length > 0 && (
-          <div className="space-y-4">
-            {pendingCompanies.map((company) => (
-              <Card key={company.id}>
-                <CardHeader className="flex flex-row items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg">{company.company_name}</CardTitle>
-                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                      {company.country && <span>{company.country}</span>}
-                      {company.industry && <span>• {company.industry}</span>}
-                      {company.num_employees && <span>• {company.num_employees}</span>}
-                    </div>
-                  </div>
-                  <Badge variant="outline">Pending</Badge>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4 pb-5 md:flex-row md:items-center md:justify-between">
-                  <p className="max-w-2xl text-sm text-muted-foreground">
-                    {company.short_description ?? "No description provided."}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleAction(company.id, "rejected")}
-                      disabled={updateStatus.isPending}
-                    >
-                      Reject
-                    </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={() => handleAction(company.id, "approved")}
-                      disabled={updateStatus.isPending}
-                    >
-                      Approve
-                    </Button>
-                  </div>
+            {!isLoading && (!pendingCompanies || pendingCompanies.length === 0) && (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  There are currently no pending company submissions.
                 </CardContent>
               </Card>
-            ))}
+            )}
+
+            {!isLoading && pendingCompanies && pendingCompanies.length > 0 && (
+              <div className="space-y-4">
+                {pendingCompanies.map((company) => (
+                  <Card key={company.id}>
+                    <CardHeader className="flex flex-row items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <CardTitle className="text-lg">{company.company_name}</CardTitle>
+                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                          {company.country && <span>{company.country}</span>}
+                          {company.industry && <span>• {company.industry}</span>}
+                          {company.num_employees && <span>• {company.num_employees}</span>}
+                        </div>
+                      </div>
+                      <Badge variant="outline">Pending</Badge>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-4 pb-5 md:flex-row md:items-center md:justify-between">
+                      <p className="max-w-2xl text-sm text-muted-foreground">
+                        {company.short_description ?? "No description provided."}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAction(company.id, "rejected")}
+                          disabled={updateStatus.isPending}
+                        >
+                          Reject
+                        </Button>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleAction(company.id, "approved")}
+                          disabled={updateStatus.isPending}
+                        >
+                          Approve
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Blog management</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Create and edit blog posts that appear on the public blog page.
+                </p>
+                <Button asChild size="sm" className="w-full">
+                  <Link to="/admin/blog-editor">Open Blog Editor</Link>
+                </Button>
+                <Button asChild size="sm" variant="outline" className="w-full">
+                  <Link to="/blog">View public blog</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </section>
     </MainLayout>
   );
