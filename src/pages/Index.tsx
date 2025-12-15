@@ -162,6 +162,11 @@ const Index = () => {
     };
   }, [filtered, currentPage]);
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <MainLayout>
       <main className="min-h-screen bg-background">
@@ -409,7 +414,7 @@ const Index = () => {
                               href="#"
                               onClick={(e) => {
                                 e.preventDefault();
-                                setCurrentPage((page) => Math.max(1, page - 1));
+                                handlePageChange(Math.max(1, currentPage - 1));
                               }}
                             />
                           </PaginationItem>
@@ -461,7 +466,7 @@ const Index = () => {
                                   isActive={page === currentPage}
                                   onClick={(e) => {
                                     e.preventDefault();
-                                    setCurrentPage(page);
+                                    handlePageChange(page);
                                   }}
                                 >
                                   {page}
@@ -477,7 +482,7 @@ const Index = () => {
                               href="#"
                               onClick={(e) => {
                                 e.preventDefault();
-                                setCurrentPage((page) => Math.min(totalPages, page + 1));
+                                handlePageChange(Math.min(totalPages, currentPage + 1));
                               }}
                             />
                           </PaginationItem>
