@@ -25,25 +25,11 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               Directory
             </NavLink>
             <NavLink
-              to="/submit-company"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-              activeClassName="text-foreground font-medium"
-            >
-              Submit Company
-            </NavLink>
-            <NavLink
               to="/blog"
               className="text-muted-foreground transition-colors hover:text-foreground"
               activeClassName="text-foreground font-medium"
             >
               Blog
-            </NavLink>
-            <NavLink
-              to="/admin"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-              activeClassName="text-foreground font-medium"
-            >
-              Admin
             </NavLink>
             <Button asChild size="sm" className="ml-2">
               <NavLink to="/submit-company">List your company</NavLink>
