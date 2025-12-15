@@ -44,7 +44,7 @@ const Index = () => {
   const [industry, setIndustry] = useState<string>("all");
   const [employees, setEmployees] = useState<string>("all");
 
-  const getDescriptionPreview = (text: string, maxLength = 180) => {
+  const getDescriptionPreview = (text: string, maxLength = 120) => {
     if (!text) return "";
     const normalized = text.replace(/\s+/g, " ").trim();
     if (normalized.length <= maxLength) return normalized;
@@ -270,7 +270,7 @@ const Index = () => {
                           </div>
 
                           {company.short_description && (
-                            <p className="text-sm text-muted-foreground line-clamp-3">
+                            <p className="text-sm text-muted-foreground line-clamp-2">
                               {getDescriptionPreview(company.short_description)}
                             </p>
                           )}
