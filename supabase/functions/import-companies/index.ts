@@ -38,9 +38,31 @@ Deno.serve(async (req) => {
       });
     }
 
-    const sanitizedCsv = csv.replace(/""\r?\n/g, '"\n');
+    // Normalize multiline fields by grouping lines until quotes are balanced
+    const lines = csv.split(/\r?\n/);
+    const fixedLines: string[] = [];
 
-    const rows = (await parse(sanitizedCsv, {
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i];
+      if (!line) continue;
+
+      // Start building a logical row
+      let current = line;
+      let quoteCount = (current.match(/"/g) ?? []).length;
+
+      // If quotes are unbalanced, keep appending following lines
+      while (quoteCount % 2 !== 0 && i + 1 < lines.length) {
+        i++;
+        current += "\n" + lines[i];
+        quoteCount = (current.match(/"/g) ?? []).length;
+      }
+
+      fixedLines.push(current);
+    }
+
+    const normalizedCsv = fixedLines.join("\n");
+
+    const rows = (await parse(normalizedCsv, {
       skipFirstRow: false,
     })) as string[][];
 
