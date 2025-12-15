@@ -44,7 +44,7 @@ const Index = () => {
   const [industry, setIndustry] = useState<string>("all");
   const [employees, setEmployees] = useState<string>("all");
 
-  const getDescriptionPreview = (text: string, maxLength = 120) => {
+  const getDescriptionPreview = (text: string, maxLength = 80) => {
     if (!text) return "";
     const normalized = text.replace(/\s+/g, " ").trim();
     if (normalized.length <= maxLength) return normalized;
