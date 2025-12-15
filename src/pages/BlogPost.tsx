@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { marked } from "marked";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -53,6 +54,8 @@ const BlogPost = () => {
 
   useSeo(data ?? undefined);
 
+  const renderedContent = data?.content ? marked.parse(data.content) : "";
+
   return (
     <MainLayout>
       <section className="container py-10 md:py-16">
@@ -76,7 +79,7 @@ const BlogPost = () => {
                 </p>
               </CardHeader>
               <CardContent className="prose prose-sm max-w-none dark:prose-invert">
-                <div dangerouslySetInnerHTML={{ __html: data.content }} />
+                <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
               </CardContent>
             </Card>
           </article>
