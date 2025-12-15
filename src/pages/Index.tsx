@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MainLayout } from "@/components/layout/MainLayout";
+import { Globe2, Users, MapPin, CalendarDays } from "lucide-react";
 
 type Company = Tables<"companies">;
 
@@ -229,64 +230,94 @@ const Index = () => {
                 {!isLoading &&
                   filtered.map((company) => (
                     <Card key={company.id} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-stretch">
-                      <div className="flex-1 space-y-3">
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <div>
-                            <CardTitle className="text-base font-semibold md:text-lg">
-                              {company.company_name}
-                            </CardTitle>
-                            {company.industry && (
-                              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                {company.industry}
-                              </p>
-                            )}
+                      <div className="flex flex-1 items-start gap-4">
+                        {company.logo_url && (
+                          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border bg-muted sm:h-14 sm:w-14">
+                            <img
+                              src={company.logo_url}
+                              alt={`${company.company_name} logo`}
+                              className="h-full w-full object-contain"
+                              loading="lazy"
+                            />
                           </div>
-                          {company.num_employees && (
-                            <Badge variant="outline" className="text-xs">
-                              {company.num_employees}
-                            </Badge>
-                          )}
-                        </div>
-
-                        {company.short_description && (
-                          <p className="text-sm text-muted-foreground line-clamp-3">
-                            {company.short_description}
-                          </p>
                         )}
 
-                        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                          {company.num_employees && (
-                            <span>{company.num_employees} employees</span>
-                          )}
-                          {company.country && (
-                            <span>
-                              {company.city ? `${company.city}, ` : ""}
-                              {company.country}
-                            </span>
-                          )}
-                          {company.founded_year && <span>Founded {company.founded_year}</span>}
-                        </div>
+                        <div className="flex-1 space-y-3">
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div>
+                              <CardTitle className="text-base font-semibold md:text-lg">
+                                {company.company_name}
+                              </CardTitle>
+                              {company.industry && (
+                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                  {company.industry}
+                                </p>
+                              )}
+                            </div>
+                            {company.num_employees && (
+                              <Badge variant="outline" className="text-xs">
+                                {company.num_employees}
+                              </Badge>
+                            )}
+                          </div>
 
-                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                          {company.technologies &&
-                            company.technologies
-                              .split(",")
-                              .map((tech) => tech.trim())
-                              .filter(Boolean)
-                              .slice(0, 4)
-                              .map((tech) => (
-                                <Badge key={tech} variant="outline">
-                                  {tech}
-                                </Badge>
-                              ))}
+                          {company.short_description && (
+                            <p className="text-sm text-muted-foreground line-clamp-3">
+                              {company.short_description}
+                            </p>
+                          )}
+
+                          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+                            {company.num_employees && (
+                              <span className="inline-flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                <span>{company.num_employees} employees</span>
+                              </span>
+                            )}
+                            {company.country && (
+                              <span className="inline-flex items-center gap-1">
+                                <MapPin className="h-3 w-3" />
+                                <span>
+                                  {company.city ? `${company.city}, ` : ""}
+                                  {company.country}
+                                </span>
+                              </span>
+                            )}
+                            {company.founded_year && (
+                              <span className="inline-flex items-center gap-1">
+                                <CalendarDays className="h-3 w-3" />
+                                <span>Founded {company.founded_year}</span>
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                            {company.technologies &&
+                              company.technologies
+                                .split(",")
+                                .map((tech) => tech.trim())
+                                .filter(Boolean)
+                                .slice(0, 4)
+                                .map((tech) => (
+                                  <Badge key={tech} variant="outline">
+                                    {tech}
+                                  </Badge>
+                                ))}
+                          </div>
                         </div>
                       </div>
 
                       <div className="flex flex-col gap-2 sm:w-40">
                         {company.website && (
                           <Button asChild size="sm" className="w-full">
-                            <a href={company.website} target="_blank" rel="noreferrer">
-                              Visit Website
+                            <a
+                              href={company.website}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center justify-center gap-1"
+                            >
+                              <Globe2 className="h-3 w-3" />
+                              <span>Visit Website</span>
                             </a>
                           </Button>
                         )}
