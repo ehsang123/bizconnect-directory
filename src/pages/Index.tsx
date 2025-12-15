@@ -8,10 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Globe2, Users, MapPin, CalendarDays } from "lucide-react";
 
 type Company = Tables<"companies">;
+
+const ITEMS_PER_PAGE = 40;
 
 const setSeo = () => {
   useEffect(() => {
@@ -43,6 +46,7 @@ const Index = () => {
   const [country, setCountry] = useState<string>("all");
   const [industry, setIndustry] = useState<string>("all");
   const [employees, setEmployees] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const getDescriptionPreview = (text: string, maxLength = 80) => {
     if (!text) return "";
@@ -98,6 +102,21 @@ const Index = () => {
     };
   }, [companies, search, country, industry, employees]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, country, industry, employees]);
+
+  const { paginatedCompanies, totalPages } = useMemo(() => {
+    const totalPagesCalc = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+    const safePage = Math.min(currentPage, totalPagesCalc);
+    const start = (safePage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+
+    return {
+      paginatedCompanies: filtered.slice(start, end),
+      totalPages: totalPagesCalc,
+    };
+  }, [filtered, currentPage]);
 
   return (
     <MainLayout>
@@ -236,7 +255,7 @@ const Index = () => {
                 )}
 
                 {!isLoading &&
-                  filtered.map((company) => (
+                  paginatedCompanies.map((company) => (
                     <Card key={company.id} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-stretch">
                       <div className="flex flex-1 items-start gap-4">
                         {company.logo_url && (
@@ -335,6 +354,56 @@ const Index = () => {
                       </div>
                     </Card>
                   ))}
+
+                {!isLoading && totalPages > 1 && (
+                  <div className="flex justify-center pt-4">
+                    <Pagination>
+                      <PaginationContent>
+                        {currentPage > 1 && (
+                          <PaginationItem>
+                            <PaginationPrevious
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentPage((page) => Math.max(1, page - 1));
+                              }}
+                            />
+                          </PaginationItem>
+                        )}
+
+                        {Array.from({ length: totalPages }, (_, index) => {
+                          const page = index + 1;
+                          return (
+                            <PaginationItem key={page}>
+                              <PaginationLink
+                                href="#"
+                                isActive={page === currentPage}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setCurrentPage(page);
+                                }}
+                              >
+                                {page}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+
+                        {currentPage < totalPages && (
+                          <PaginationItem>
+                            <PaginationNext
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentPage((page) => Math.min(totalPages, page + 1));
+                              }}
+                            />
+                          </PaginationItem>
+                        )}
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
               </div>
             </div>
           </div>
