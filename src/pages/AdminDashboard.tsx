@@ -88,17 +88,79 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleImport = async (file: File | null) => {
+    if (!file) {
+      toast({
+        title: "No file selected",
+        description: "Please choose a CSV file exported from your Excel sheet.",
+      });
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const { data, error } = await supabase.functions.invoke("import-companies", {
+        body: { csv: text },
+      });
+
+      if (error) {
+        console.error("Import error", error);
+        toast({
+          title: "Import failed",
+          description: "There was an error while importing companies.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Import complete",
+        description: `Inserted ${data?.inserted ?? 0} companies, skipped ${
+          data?.skipped ?? 0
+        } existing ones.`,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["companies", "approved"] });
+    } catch (err) {
+      console.error("Unexpected import error", err);
+      toast({
+        title: "Import failed",
+        description: "Unexpected error while reading or sending the file.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <MainLayout>
       <section className="container py-10 md:py-16">
         <header className="mb-6 space-y-2">
           <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Admin</h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Review new company submissions. Only approved companies are shown in the
-            public directory. Admin authentication and role checks should be configured in
-            the backend for production.
+            Review new company submissions and import bulk companies from CSV. Only approved
+            companies are shown in the public directory.
           </p>
         </header>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-base">Bulk import companies from CSV</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <p className="text-sm text-muted-foreground">
+              Export your Excel file as CSV and upload it here. Existing companies (by name or
+              website) will be skipped automatically.
+            </p>
+            <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                onChange={(e) => handleImport(e.target.files?.[0] ?? null)}
+                className="text-sm"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         {isLoading && <p className="text-muted-foreground">Loading pending submissions...</p>}
 
@@ -116,9 +178,7 @@ const AdminDashboard = () => {
               <Card key={company.id}>
                 <CardHeader className="flex flex-row items-center justify-between gap-4">
                   <div className="space-y-1">
-                    <CardTitle className="text-lg">
-                      {company.company_name}
-                    </CardTitle>
+                    <CardTitle className="text-lg">{company.company_name}</CardTitle>
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                       {company.country && <span>{company.country}</span>}
                       {company.industry && <span>• {company.industry}</span>}
