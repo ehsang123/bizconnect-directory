@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Globe2, Users, MapPin, CalendarDays } from "lucide-react";
 
@@ -371,23 +371,61 @@ const Index = () => {
                           </PaginationItem>
                         )}
 
-                        {Array.from({ length: totalPages }, (_, index) => {
-                          const page = index + 1;
-                          return (
-                            <PaginationItem key={page}>
-                              <PaginationLink
-                                href="#"
-                                isActive={page === currentPage}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  setCurrentPage(page);
-                                }}
-                              >
-                                {page}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        })}
+                        {(() => {
+                          const windowSize = 5;
+                          const pages: (number | "ellipsis")[] = [];
+
+                          if (totalPages <= windowSize + 2) {
+                            for (let p = 1; p <= totalPages; p += 1) pages.push(p);
+                          } else {
+                            const firstPage = 1;
+                            const lastPage = totalPages;
+                            let startPage = currentPage - Math.floor(windowSize / 2);
+                            let endPage = currentPage + Math.floor(windowSize / 2);
+
+                            if (startPage < 2) {
+                              startPage = 2;
+                              endPage = startPage + windowSize - 1;
+                            }
+                            if (endPage > lastPage - 1) {
+                              endPage = lastPage - 1;
+                              startPage = endPage - windowSize + 1;
+                            }
+
+                            pages.push(firstPage);
+                            if (startPage > firstPage + 1) pages.push("ellipsis");
+
+                            for (let p = startPage; p <= endPage; p += 1) pages.push(p);
+
+                            if (endPage < lastPage - 1) pages.push("ellipsis");
+                            pages.push(lastPage);
+                          }
+
+                          return pages.map((page, index) => {
+                            if (page === "ellipsis") {
+                              return (
+                                <PaginationItem key={`ellipsis-${index}`}>
+                                  <PaginationEllipsis />
+                                </PaginationItem>
+                              );
+                            }
+
+                            return (
+                              <PaginationItem key={page}>
+                                <PaginationLink
+                                  href="#"
+                                  isActive={page === currentPage}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setCurrentPage(page);
+                                  }}
+                                >
+                                  {page}
+                                </PaginationLink>
+                              </PaginationItem>
+                            );
+                          });
+                        })()}
 
                         {currentPage < totalPages && (
                           <PaginationItem>
