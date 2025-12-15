@@ -47,6 +47,15 @@ const Index = () => {
   const [industry, setIndustry] = useState<string>("all");
   const [employees, setEmployees] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [initialCompanies] = useState<Company[] | undefined>(() => {
+    if (typeof window === "undefined") return undefined;
+    try {
+      const stored = window.localStorage.getItem("companies_cache_v1");
+      return stored ? (JSON.parse(stored) as Company[]) : undefined;
+    } catch {
+      return undefined;
+    }
+  });
 
   const getDescriptionPreview = (text: string, maxLength = 80) => {
     if (!text) return "";
@@ -60,13 +69,28 @@ const Index = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("companies")
-        .select("*")
+        .select(
+          "id, company_name, industry, num_employees, short_description, country, city, founded_year, technologies, website, logo_url, status",
+        )
         .eq("status", "approved")
         .order("company_name", { ascending: true });
 
       if (error) throw error;
-      return data as Company[];
+
+      const typedData = data as Company[];
+      if (typeof window !== "undefined") {
+        try {
+          window.localStorage.setItem("companies_cache_v1", JSON.stringify(typedData));
+        } catch {
+          // ignore cache errors
+        }
+      }
+
+      return typedData;
     },
+    initialData: initialCompanies,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { countries, industries, employeeRanges, filtered } = useMemo(() => {
