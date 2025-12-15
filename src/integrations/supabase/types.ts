@@ -160,6 +160,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      grant_admin_if_allowed: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
