@@ -7,6 +7,7 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { MapPin, Users, Calendar, Globe, Phone, Building2 } from "lucide-react";
 
 type Company = Tables<"companies">;
 
@@ -34,6 +35,15 @@ const useSeo = (name?: string | null) => {
       document.head.appendChild(canonical);
     }
     canonical.href = window.location.href;
+
+    // Mark individual company profile pages as non-indexable for search engines
+    let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement("meta");
+      robots.name = "robots";
+      document.head.appendChild(robots);
+    }
+    robots.content = "noindex,follow";
   }, [name]);
 };
 
@@ -72,25 +82,53 @@ const CompanyDetail = () => {
         )}
         {!isLoading && data && (
           <Card className="mx-auto max-w-3xl">
-            <CardHeader className="space-y-2">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <CardTitle className="text-2xl md:text-3xl">
-                    {data.company_name}
-                  </CardTitle>
-                  <div className="mt-1 flex flex-wrap gap-2 text-sm text-muted-foreground">
-                    {data.country && (
-                      <span>
-                        {data.city ? `${data.city}, ` : ""}
-                        {data.country}
-                      </span>
-                    )}
-                    {data.industry && <span>• {data.industry}</span>}
-                    {data.founded_year && <span>• Founded {data.founded_year}</span>}
+            <CardHeader className="space-y-4">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  {data.logo_url && (
+                    <div className="h-14 w-14 overflow-hidden rounded-md border bg-muted">
+                      <img
+                        src={data.logo_url}
+                        alt={`${data.company_name} logo`}
+                        className="h-full w-full object-contain"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <CardTitle className="text-2xl md:text-3xl">
+                      {data.company_name}
+                    </CardTitle>
+                    <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                      {data.country && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin className="h-4 w-4" />
+                          <span>
+                            {data.city ? `${data.city}, ` : ""}
+                            {data.country}
+                          </span>
+                        </span>
+                      )}
+                      {data.industry && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Building2 className="h-4 w-4" />
+                          <span>{data.industry}</span>
+                        </span>
+                      )}
+                      {data.founded_year && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Calendar className="h-4 w-4" />
+                          <span>Founded {data.founded_year}</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 {data.num_employees && (
-                  <Badge variant="outline">{data.num_employees} employees</Badge>
+                  <Badge variant="outline" className="inline-flex items-center gap-1.5 self-start text-xs md:text-sm">
+                    <Users className="h-3.5 w-3.5" />
+                    <span>{data.num_employees} employees</span>
+                  </Badge>
                 )}
               </div>
             </CardHeader>
@@ -105,6 +143,41 @@ const CompanyDetail = () => {
                   </p>
                 </section>
               )}
+
+              <section className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2 text-sm">
+                  <h2 className="text-xs font-semibold tracking-wide text-muted-foreground">
+                    Company details
+                  </h2>
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    {data.full_address && <p>{data.full_address}</p>}
+                    {!data.full_address && (data.street || data.city || data.state || data.postal_code) && (
+                      <p>
+                        {[data.street, data.city, data.state, data.postal_code].filter(Boolean).join(", ")}
+                      </p>
+                    )}
+                    {data.phone && (
+                      <p className="inline-flex items-center gap-1.5">
+                        <Phone className="h-4 w-4" />
+                        <span>{data.phone}</span>
+                      </p>
+                    )}
+                    {data.website && (
+                      <p className="inline-flex items-center gap-1.5">
+                        <Globe className="h-4 w-4" />
+                        <a
+                          href={data.website}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="underline-offset-2 hover:underline"
+                        >
+                          {data.website}
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </section>
 
               {data.technologies && (
                 <section className="space-y-2">
