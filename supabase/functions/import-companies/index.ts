@@ -38,7 +38,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const rows = (await parse(csv, {
+    const sanitizedCsv = csv.replace(/""\r?\n/g, '"\n');
+
+    const rows = (await parse(sanitizedCsv, {
       skipFirstRow: false,
     })) as string[][];
 
