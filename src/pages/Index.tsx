@@ -124,136 +124,180 @@ const Index = () => {
         </section>
 
         <section className="container py-8 md:py-10">
-          <div className="grid gap-4 rounded-lg border bg-card p-4 shadow-sm md:grid-cols-4 md:gap-6">
-            <div className="md:col-span-2 space-y-2">
-              <label className="text-sm font-medium" htmlFor="search">
-                Search companies
-              </label>
-              <Input
-                id="search"
-                placeholder="Search by name, industry, or technology"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Country</label>
-              <Select value={country} onValueChange={setCountry}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All countries" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All countries</SelectItem>
-                  {countries.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Industry</label>
-              <Select value={industry} onValueChange={setIndustry}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All industries" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All industries</SelectItem>
-                  {industries.map((ind) => (
-                    <SelectItem key={ind} value={ind}>
-                      {ind}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2 md:col-span-1">
-              <label className="text-sm font-medium">Company size</label>
-              <Select value={employees} onValueChange={setEmployees}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All sizes" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All sizes</SelectItem>
-                  {employeeRanges.map((range) => (
-                    <SelectItem key={range} value={range}>
-                      {range}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <div className="grid gap-8 lg:grid-cols-[280px,1fr]">
+            {/* Filters sidebar */}
+            <aside className="space-y-6 rounded-lg border bg-card p-4 shadow-sm">
+              <div className="space-y-2">
+                <label className="text-sm font-medium" htmlFor="search">
+                  Company Name
+                </label>
+                <Input
+                  id="search"
+                  placeholder="Search by name, industry, or technology"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
 
-          <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
-            <p>
-              {isLoading
-                ? "Loading approved companies..."
-                : `${filtered.length} approved compan${filtered.length === 1 ? "y" : "ies"} found`}
-            </p>
-          </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Country</label>
+                <Select value={country} onValueChange={setCountry}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All countries" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All countries</SelectItem>
+                    {countries.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {isLoading && (
-              <p className="col-span-full text-center text-muted-foreground">
-                Loading directory...
-              </p>
-            )}
-            {!isLoading && filtered.length === 0 && (
-              <Card className="col-span-full">
-                <CardContent className="py-6 text-center text-muted-foreground">
-                  No companies match your filters yet. Try adjusting your search.
-                </CardContent>
-              </Card>
-            )}
-            {!isLoading &&
-              filtered.map((company) => (
-                <Card key={company.id} className="flex flex-col justify-between">
-                  <CardHeader>
-                    <CardTitle className="flex items-start justify-between gap-2 text-lg">
-                      <span>{company.company_name}</span>
-                      {company.num_employees && (
-                        <Badge variant="outline">{company.num_employees}</Badge>
-                      )}
-                    </CardTitle>
-                    <CardDescription className="space-y-1 text-sm">
-                      <div className="flex flex-wrap gap-x-3 gap-y-1">
-                        {company.country && (
-                          <span className="text-muted-foreground">
-                            {company.city ? `${company.city}, ` : ""}
-                            {company.country}
-                          </span>
-                        )}
-                        {company.industry && <span>• {company.industry}</span>}
-                      </div>
-                      {company.short_description && (
-                        <p className="line-clamp-3 text-xs md:text-sm">
-                          {company.short_description}
-                        </p>
-                      )}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex items-center justify-between gap-3 border-t pt-4">
-                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                      {company.technologies &&
-                        company.technologies
-                          .split(",")
-                          .map((tech) => tech.trim())
-                          .filter(Boolean)
-                          .slice(0, 3)
-                          .map((tech) => (
-                            <Badge key={tech} variant="outline">
-                              {tech}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Industry</label>
+                <Select value={industry} onValueChange={setIndustry}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All industries" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All industries</SelectItem>
+                    {industries.map((ind) => (
+                      <SelectItem key={ind} value={ind}>
+                        {ind}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Employees</label>
+                <Select value={employees} onValueChange={setEmployees}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All sizes" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All sizes</SelectItem>
+                    {employeeRanges.map((range) => (
+                      <SelectItem key={range} value={range}>
+                        {range}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </aside>
+
+            {/* Results column */}
+            <div className="space-y-4">
+              <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                <div>
+                  <h2 className="text-xl font-semibold tracking-tight">All Companies</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {isLoading
+                      ? "Loading approved companies..."
+                      : `${filtered.length} approved compan${filtered.length === 1 ? "y" : "ies"} found`}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Sort by:</span>
+                  <Badge variant="outline">Recommended</Badge>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {isLoading && (
+                  <Card>
+                    <CardContent className="py-6 text-center text-muted-foreground">
+                      Loading directory...
+                    </CardContent>
+                  </Card>
+                )}
+
+                {!isLoading && filtered.length === 0 && (
+                  <Card>
+                    <CardContent className="py-6 text-center text-muted-foreground">
+                      No companies match your filters yet. Try adjusting your search.
+                    </CardContent>
+                  </Card>
+                )}
+
+                {!isLoading &&
+                  filtered.map((company) => (
+                    <Card key={company.id} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-stretch">
+                      <div className="flex-1 space-y-3">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <div>
+                            <CardTitle className="text-base font-semibold md:text-lg">
+                              {company.company_name}
+                            </CardTitle>
+                            {company.industry && (
+                              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                {company.industry}
+                              </p>
+                            )}
+                          </div>
+                          {company.num_employees && (
+                            <Badge variant="outline" className="text-xs">
+                              {company.num_employees}
                             </Badge>
-                          ))}
-                    </div>
-                    <Button asChild size="sm" variant="outline">
-                      <Link to={`/companies/${company.id}`}>View details</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                          )}
+                        </div>
+
+                        {company.short_description && (
+                          <p className="text-sm text-muted-foreground line-clamp-3">
+                            {company.short_description}
+                          </p>
+                        )}
+
+                        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+                          {company.num_employees && (
+                            <span>{company.num_employees} employees</span>
+                          )}
+                          {company.country && (
+                            <span>
+                              {company.city ? `${company.city}, ` : ""}
+                              {company.country}
+                            </span>
+                          )}
+                          {company.founded_year && <span>Founded {company.founded_year}</span>}
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                          {company.technologies &&
+                            company.technologies
+                              .split(",")
+                              .map((tech) => tech.trim())
+                              .filter(Boolean)
+                              .slice(0, 4)
+                              .map((tech) => (
+                                <Badge key={tech} variant="outline">
+                                  {tech}
+                                </Badge>
+                              ))}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2 sm:w-40">
+                        {company.website && (
+                          <Button asChild size="sm" className="w-full">
+                            <a href={company.website} target="_blank" rel="noreferrer">
+                              Visit Website
+                            </a>
+                          </Button>
+                        )}
+                        <Button asChild size="sm" variant="outline" className="w-full">
+                          <Link to={`/companies/${company.id}`}>View Profile</Link>
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+              </div>
+            </div>
           </div>
         </section>
       </main>
