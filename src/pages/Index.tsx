@@ -16,6 +16,13 @@ type Company = Tables<"companies">;
 
 const ITEMS_PER_PAGE = 40;
 
+const EMPLOYEE_RANGES = [
+  { value: "1-10", label: "1 - 10 employees", min: 1, max: 10 },
+  { value: "11-50", label: "11 - 50 employees", min: 11, max: 50 },
+  { value: "51-200", label: "51 - 200 employees", min: 51, max: 200 },
+  { value: "200+", label: "200+ employees", min: 201, max: Infinity },
+] as const;
+
 const setSeo = () => {
   useEffect(() => {
     document.title = "B2B Value Added Reseller Directory";
@@ -93,17 +100,15 @@ const Index = () => {
     refetchOnWindowFocus: false,
   });
 
-  const { countries, industries, employeeRanges, filtered } = useMemo(() => {
+  const { countries, industries, filtered } = useMemo(() => {
     const list = companies ?? [];
 
     const countriesSet = new Set<string>();
     const industriesSet = new Set<string>();
-    const employeesSet = new Set<string>();
 
     const filteredList = list.filter((company) => {
       if (company.country) countriesSet.add(company.country);
       if (company.industry) industriesSet.add(company.industry);
-      if (company.num_employees) employeesSet.add(company.num_employees);
 
       const matchesSearch =
         !search.trim() ||
@@ -113,7 +118,23 @@ const Index = () => {
 
       const matchesCountry = country === "all" || company.country === country;
       const matchesIndustry = industry === "all" || company.industry === industry;
-      const matchesEmployees = employees === "all" || company.num_employees === employees;
+
+      let matchesEmployees = true;
+      if (employees !== "all") {
+        const range = EMPLOYEE_RANGES.find((r) => r.value === employees);
+        if (range) {
+          const numericEmployees = company.num_employees
+            ? parseInt(company.num_employees.replace(/[^0-9]/g, ""), 10)
+            : undefined;
+
+          matchesEmployees = Boolean(
+            numericEmployees &&
+              Number.isFinite(numericEmployees) &&
+              numericEmployees >= range.min &&
+              numericEmployees <= range.max,
+          );
+        }
+      }
 
       return matchesSearch && matchesCountry && matchesIndustry && matchesEmployees;
     });
@@ -121,7 +142,6 @@ const Index = () => {
     return {
       countries: Array.from(countriesSet).sort(),
       industries: Array.from(industriesSet).sort(),
-      employeeRanges: Array.from(employeesSet).sort(),
       filtered: filteredList,
     };
   }, [companies, search, country, industry, employees]);
@@ -233,9 +253,9 @@ const Index = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All sizes</SelectItem>
-                    {employeeRanges.map((range) => (
-                      <SelectItem key={range} value={range}>
-                        {range}
+                    {EMPLOYEE_RANGES.map((range) => (
+                      <SelectItem key={range.value} value={range.value}>
+                        {range.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
