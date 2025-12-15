@@ -44,6 +44,13 @@ const Index = () => {
   const [industry, setIndustry] = useState<string>("all");
   const [employees, setEmployees] = useState<string>("all");
 
+  const getDescriptionPreview = (text: string, maxLength = 180) => {
+    if (!text) return "";
+    const normalized = text.replace(/\s+/g, " ").trim();
+    if (normalized.length <= maxLength) return normalized;
+    return normalized.slice(0, maxLength).replace(/[,;:]?\s*$/, "") + "...";
+  };
+
   const { data: companies, isLoading } = useQuery({
     queryKey: ["companies", "approved"],
     queryFn: async () => {
@@ -90,6 +97,7 @@ const Index = () => {
       filtered: filteredList,
     };
   }, [companies, search, country, industry, employees]);
+
 
   return (
     <MainLayout>
@@ -263,7 +271,7 @@ const Index = () => {
 
                           {company.short_description && (
                             <p className="text-sm text-muted-foreground line-clamp-3">
-                              {company.short_description}
+                              {getDescriptionPreview(company.short_description)}
                             </p>
                           )}
 
