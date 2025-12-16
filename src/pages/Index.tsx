@@ -48,7 +48,7 @@ const Index = () => {
     <MainLayout>
       <main className="min-h-screen bg-background">
         {/* Hero section */}
-        <section className="border-b bg-muted/40">
+        <section className="border-b bg-gradient-to-b from-primary/5 via-background to-background">
           <div className="container py-12 md:py-16">
             <div className="grid gap-10 md:grid-cols-2 md:items-center">
               <div className="space-y-5">
@@ -61,10 +61,15 @@ const Index = () => {
                   right channel partner for your business.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <Button asChild size="sm">
+                  <Button asChild size="sm" className="shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                     <Link to="/services/value-added-resellers">Browse Directory</Link>
                   </Button>
-                  <Button asChild size="sm" variant="outline">
+                  <Button
+                    asChild
+                    size="sm"
+                    variant="outline"
+                    className="transition hover:-translate-y-0.5 hover:shadow-sm"
+                  >
                     <Link to="/submit-company">List Your Company</Link>
                   </Button>
                 </div>
@@ -77,8 +82,8 @@ const Index = () => {
               </div>
 
               <div className="relative">
-                <div className="pointer-events-none absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 blur-2xl" />
-                <Card className="overflow-hidden border bg-card/80 shadow-lg backdrop-blur">
+                <div className="pointer-events-none absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-primary/15 via-primary/5 to-accent/20 blur-2xl" />
+                <Card className="overflow-hidden border bg-card/80 shadow-lg backdrop-blur transition hover:-translate-y-1 hover:shadow-xl">
                   <CardHeader className="border-b bg-muted/60 pb-3">
                     <CardTitle className="text-base">Live Channel Partner Snapshot</CardTitle>
                     <CardDescription className="text-xs">

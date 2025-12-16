@@ -17,17 +17,17 @@ interface MainLayoutProps {
 export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b bg-card/80 backdrop-blur">
-        <div className="container flex h-16 items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 border-b bg-gradient-to-b from-background/95 via-background/90 to-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="container flex h-16 items-center justify-between gap-4 transition-all">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold tracking-tight text-primary">
               VAR Directory
             </span>
           </div>
-          <nav className="flex items-center gap-3 text-sm">
+          <nav className="flex items-center gap-4 text-sm">
             <NavLink
               to="/"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="text-muted-foreground transition-colors hover:text-foreground hover:opacity-90"
               activeClassName="text-foreground font-medium"
             >
               Home
@@ -109,32 +109,32 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               </NavigationMenuList>
             </NavigationMenu>
             <NavLink
-              to="/blog"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-              activeClassName="text-foreground font-medium"
-            >
-              Blog
-            </NavLink>
-            <NavLink
-              to="/about"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-              activeClassName="text-foreground font-medium"
-            >
-              About us
-            </NavLink>
-            <Button asChild size="sm" className="ml-2">
-              <NavLink to="/submit-company">List your company</NavLink>
-            </Button>
-          </nav>
-        </div>
-      </header>
-      <main>{children}</main>
-      <footer className="border-t bg-muted/40">
-        <div className="container flex h-12 items-center justify-between text-xs text-muted-foreground">
-          <span>B2B Value Added Reseller Directory</span>
-          <span>Only admin-approved companies are listed publicly.</span>
-        </div>
-      </footer>
-    </div>
-  );
-};
+               to="/blog"
+               className="text-muted-foreground transition-colors hover:text-foreground hover:opacity-90"
+               activeClassName="text-foreground font-medium"
+             >
+               Blog
+             </NavLink>
+             <NavLink
+               to="/about"
+               className="text-muted-foreground transition-colors hover:text-foreground hover:opacity-90"
+               activeClassName="text-foreground font-medium"
+             >
+               About us
+             </NavLink>
+             <Button asChild size="sm" className="ml-2 shadow-sm transition hover:shadow-md">
+               <NavLink to="/submit-company">List your company</NavLink>
+             </Button>
+           </nav>
+         </div>
+       </header>
+       <main>{children}</main>
+       <footer className="border-t bg-muted/60">
+         <div className="container flex h-14 items-center justify-between text-[11px] text-muted-foreground">
+           <span>B2B Value Added Reseller Directory</span>
+           <span>Only admin-approved companies are listed publicly.</span>
+         </div>
+       </footer>
+     </div>
+   );
+ };
