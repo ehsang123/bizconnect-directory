@@ -25,13 +25,20 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
             </span>
           </div>
           <nav className="flex items-center gap-3 text-sm">
+            <NavLink
+              to="/"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+              activeClassName="text-foreground font-medium"
+            >
+              Home
+            </NavLink>
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="text-muted-foreground hover:text-foreground">
                     Services
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent className="z-50">
+                  <NavigationMenuContent>
                     <div className="grid gap-1 p-3 md:w-[320px] lg:w-[420px]">
                       <NavigationMenuLink asChild>
                         <NavLink
@@ -107,6 +114,13 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               activeClassName="text-foreground font-medium"
             >
               Blog
+            </NavLink>
+            <NavLink
+              to="/about"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+              activeClassName="text-foreground font-medium"
+            >
+              About us
             </NavLink>
             <Button asChild size="sm" className="ml-2">
               <NavLink to="/submit-company">List your company</NavLink>
