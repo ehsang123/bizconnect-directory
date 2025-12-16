@@ -12,6 +12,13 @@ import BlogPost from "./pages/BlogPost";
 import AdminDashboard from "./pages/AdminDashboard";
 import BlogEditor from "./pages/BlogEditor";
 import WpAdmin from "./pages/WpAdmin";
+import ManagedServiceProviders from "./pages/ManagedServiceProviders";
+import ValueAddedResellers from "./pages/ValueAddedResellers";
+import ManagedSecurityServices from "./pages/ManagedSecurityServices";
+import CloudServiceProviders from "./pages/CloudServiceProviders";
+import IndependentSoftwareVendors from "./pages/IndependentSoftwareVendors";
+import AmazonWebServices from "./pages/AmazonWebServices";
+import SystemsIntegrators from "./pages/SystemsIntegrators";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +37,16 @@ const App = () => (
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/blog-editor" element={<BlogEditor />} />
           <Route path="/wpadmin" element={<WpAdmin />} />
+          <Route path="/services/managed-service-providers" element={<ManagedServiceProviders />} />
+          <Route path="/services/value-added-resellers" element={<ValueAddedResellers />} />
+          <Route path="/services/managed-security-services" element={<ManagedSecurityServices />} />
+          <Route path="/services/cloud-service-providers" element={<CloudServiceProviders />} />
+          <Route
+            path="/services/independent-software-vendors"
+            element={<IndependentSoftwareVendors />}
+          />
+          <Route path="/services/amazon-web-services" element={<AmazonWebServices />} />
+          <Route path="/services/systems-integrators" element={<SystemsIntegrators />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
