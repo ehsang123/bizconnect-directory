@@ -19,6 +19,7 @@ import CloudServiceProviders from "./pages/CloudServiceProviders";
 import IndependentSoftwareVendors from "./pages/IndependentSoftwareVendors";
 import AmazonWebServices from "./pages/AmazonWebServices";
 import SystemsIntegrators from "./pages/SystemsIntegrators";
+import AboutUs from "./pages/AboutUs";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
           />
           <Route path="/services/amazon-web-services" element={<AmazonWebServices />} />
           <Route path="/services/systems-integrators" element={<SystemsIntegrators />} />
+          <Route path="/about" element={<AboutUs />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
