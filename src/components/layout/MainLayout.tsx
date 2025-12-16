@@ -128,13 +128,71 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
            </nav>
          </div>
        </header>
-       <main>{children}</main>
-       <footer className="border-t bg-muted/60">
-         <div className="container flex h-14 items-center justify-between text-[11px] text-muted-foreground">
-           <span>B2B Value Added Reseller Directory</span>
-           <span>Only admin-approved companies are listed publicly.</span>
-         </div>
-       </footer>
-     </div>
-   );
- };
+        <main>{children}</main>
+        <footer className="mt-12 border-t bg-muted/60">
+          <div className="container grid gap-6 py-8 text-sm text-muted-foreground md:grid-cols-4">
+            <div className="space-y-2">
+              <span className="text-xs font-semibold tracking-wide text-primary uppercase">
+                VAR Directory
+              </span>
+              <p className="text-xs">
+                Curated directory of VARs, MSPs, MSSPs, CSPs and more channel partners.
+              </p>
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide">Navigate</p>
+              <ul className="space-y-1 text-xs">
+                <li>
+                  <NavLink to="/">Home</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/blog">Blog</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/about">About us</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/submit-company">List your company</NavLink>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide">Services</p>
+              <ul className="space-y-1 text-xs">
+                <li>
+                  <NavLink to="/services/managed-service-providers">Managed Service Providers</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/services/managed-security-services">Managed Security Services</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/services/value-added-resellers">Value Added Resellers</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/services/cloud-service-providers">Cloud Service Providers</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/services/independent-software-vendors">Independent Software Vendors</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/services/amazon-web-services">Amazon Web Services</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/services/systems-integrators">Systems Integrators</NavLink>
+                </li>
+              </ul>
+            </div>
+            <div className="flex flex-col justify-between text-xs">
+              <div>
+                <p className="mb-2 font-semibold uppercase tracking-wide">Compliance</p>
+                <p>Only admin-approved companies are listed publicly.</p>
+              </div>
+              <p className="mt-4 text-[11px]">
+                © {new Date().getFullYear()} B2B Value Added Reseller Directory. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  };

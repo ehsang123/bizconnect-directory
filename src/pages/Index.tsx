@@ -48,10 +48,17 @@ const Index = () => {
     <MainLayout>
       <main className="min-h-screen bg-background">
         {/* Hero section */}
-        <section className="border-b bg-gradient-to-b from-primary/5 via-background to-background">
-          <div className="container py-12 md:py-16">
+        <section className="relative overflow-hidden border-b bg-gradient-to-b from-primary/5 via-background to-background">
+          {/* abstract background shapes */}
+          <div className="pointer-events-none absolute inset-0 -z-10">
+            <div className="absolute -left-24 top-[-4rem] h-64 w-64 rounded-full bg-primary/15 blur-3xl" />
+            <div className="absolute -right-16 top-16 h-56 w-56 rounded-full bg-accent/30 blur-3xl" />
+            <div className="absolute bottom-[-6rem] left-1/3 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+          </div>
+
+          <div className="container relative py-12 md:py-16">
             <div className="grid gap-10 md:grid-cols-2 md:items-center">
-              <div className="space-y-5">
+              <div className="space-y-5 animate-fade-in">
                 <h1 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
                   Discover Verified VARs, MSPs, MSSPs &amp; Cloud Partners Instantly
                 </h1>
@@ -61,7 +68,11 @@ const Index = () => {
                   right channel partner for your business.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <Button asChild size="sm" className="shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                  <Button
+                    asChild
+                    size="sm"
+                    className="shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                  >
                     <Link to="/services/value-added-resellers">Browse Directory</Link>
                   </Button>
                   <Button
@@ -81,7 +92,7 @@ const Index = () => {
                 </div>
               </div>
 
-              <div className="relative">
+              <div className="relative animate-scale-in">
                 <div className="pointer-events-none absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-primary/15 via-primary/5 to-accent/20 blur-2xl" />
                 <Card className="overflow-hidden border bg-card/80 shadow-lg backdrop-blur transition hover:-translate-y-1 hover:shadow-xl">
                   <CardHeader className="border-b bg-muted/60 pb-3">
@@ -146,100 +157,114 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <Link to="/services/managed-service-providers" className="group block">
-                <Card className="h-full cursor-pointer transition hover:-translate-y-1 hover:shadow-md">
+                <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
                   <CardHeader className="flex flex-row items-center gap-3 pb-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:scale-110 group-hover:bg-primary/20">
                       <Users className="h-4 w-4" />
                     </div>
                     <div>
                       <CardTitle className="text-sm">Managed Service Providers</CardTitle>
-                      <CardDescription className="text-xs">MSPs offering end-to-end IT management.</CardDescription>
+                      <CardDescription className="text-xs">
+                        MSPs offering end-to-end IT management.
+                      </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
               <Link to="/services/value-added-resellers" className="group block">
-                <Card className="h-full cursor-pointer transition hover:-translate-y-1 hover:shadow-md">
+                <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
                   <CardHeader className="flex flex-row items-center gap-3 pb-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:scale-110 group-hover:bg-primary/20">
                       <Globe2 className="h-4 w-4" />
                     </div>
                     <div>
                       <CardTitle className="text-sm">Value Added Resellers</CardTitle>
-                      <CardDescription className="text-xs">Resellers adding services and integrations.</CardDescription>
+                      <CardDescription className="text-xs">
+                        Resellers adding services and integrations.
+                      </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
               <Link to="/services/managed-security-services" className="group block">
-                <Card className="h-full cursor-pointer transition hover:-translate-y-1 hover:shadow-md">
+                <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
                   <CardHeader className="flex flex-row items-center gap-3 pb-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:scale-110 group-hover:bg-primary/20">
                       <ShieldCheck className="h-4 w-4" />
                     </div>
                     <div>
                       <CardTitle className="text-sm">Managed Security Services Providers</CardTitle>
-                      <CardDescription className="text-xs">Security-focused MSSPs and SOC partners.</CardDescription>
+                      <CardDescription className="text-xs">
+                        Security-focused MSSPs and SOC partners.
+                      </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
               <Link to="/services/cloud-service-providers" className="group block">
-                <Card className="h-full cursor-pointer transition hover:-translate-y-1 hover:shadow-md">
+                <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
                   <CardHeader className="flex flex-row items-center gap-3 pb-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:scale-110 group-hover:bg-primary/20">
                       <Cloud className="h-4 w-4" />
                     </div>
                     <div>
                       <CardTitle className="text-sm">Cloud Service Providers</CardTitle>
-                      <CardDescription className="text-xs">Cloud hosting, IaaS, PaaS and SaaS specialists.</CardDescription>
+                      <CardDescription className="text-xs">
+                        Cloud hosting, IaaS, PaaS and SaaS specialists.
+                      </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
               <Link to="/services/independent-software-vendors" className="group block">
-                <Card className="h-full cursor-pointer transition hover:-translate-y-1 hover:shadow-md">
+                <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
                   <CardHeader className="flex flex-row items-center gap-3 pb-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:scale-110 group-hover:bg-primary/20">
                       <Cpu className="h-4 w-4" />
                     </div>
                     <div>
                       <CardTitle className="text-sm">Independent Software Vendors</CardTitle>
-                      <CardDescription className="text-xs">ISVs building and selling software products.</CardDescription>
+                      <CardDescription className="text-xs">
+                        ISVs building and selling software products.
+                      </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
               <Link to="/services/amazon-web-services" className="group block">
-                <Card className="h-full cursor-pointer transition hover:-translate-y-1 hover:shadow-md">
+                <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
                   <CardHeader className="flex flex-row items-center gap-3 pb-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:scale-110 group-hover:bg-primary/20">
                       <CloudCog className="h-4 w-4" />
                     </div>
                     <div>
                       <CardTitle className="text-sm">Amazon Web Services Partners</CardTitle>
-                      <CardDescription className="text-xs">Consulting and technology partners for AWS.</CardDescription>
+                      <CardDescription className="text-xs">
+                        Consulting and technology partners for AWS.
+                      </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
               <Link to="/services/systems-integrators" className="group block">
-                <Card className="h-full cursor-pointer transition hover:-translate-y-1 hover:shadow-md">
+                <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
                   <CardHeader className="flex flex-row items-center gap-3 pb-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:scale-110 group-hover:bg-primary/20">
                       <PanelLeft className="h-4 w-4" />
                     </div>
                     <div>
                       <CardTitle className="text-sm">Systems Integrators</CardTitle>
-                      <CardDescription className="text-xs">Integration experts for complex IT stacks.</CardDescription>
+                      <CardDescription className="text-xs">
+                        Integration experts for complex IT stacks.
+                      </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
