@@ -100,30 +100,6 @@ Deno.serve(async (req) => {
     const idxFounded = indexOf("Founded Year");
     const idxLogo = indexOf("Logo Url");
 
-    const { data: existing, error: existingError } = await supabase
-      .from("companies")
-      .select("company_name, website");
-
-    if (existingError) {
-      console.error("Error fetching existing companies", existingError);
-      return new Response(JSON.stringify({ error: "Failed to load existing companies" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const existingNames = new Set(
-      (existing ?? [])
-        .map((c: any) => (c.company_name as string | null)?.toLowerCase())
-        .filter(Boolean) as string[]
-    );
-
-    const existingWebsites = new Set(
-      (existing ?? [])
-        .map((c: any) => (c.website as string | null)?.toLowerCase())
-        .filter(Boolean) as string[]
-    );
-
     const rowsToInsert: any[] = [];
     let skipped = 0;
 
@@ -134,21 +110,11 @@ Deno.serve(async (req) => {
       const websiteRaw = get(idxWebsite);
       const website = websiteRaw ? websiteRaw.replace(/\\\./g, ".").trim() : "";
 
+      // Skip only rows without a company name; everything else is inserted as-is
       if (!companyName) {
         skipped++;
         continue;
       }
-
-      const lowerName = companyName.toLowerCase();
-      const lowerWebsite = website ? website.toLowerCase() : undefined;
-
-      if (existingNames.has(lowerName) || (lowerWebsite && existingWebsites.has(lowerWebsite))) {
-        skipped++;
-        continue;
-      }
-
-      existingNames.add(lowerName);
-      if (lowerWebsite) existingWebsites.add(lowerWebsite);
 
       rowsToInsert.push({
         company_name: companyName,
