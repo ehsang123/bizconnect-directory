@@ -68,6 +68,7 @@ export type Database = {
           num_employees: string | null
           phone: string | null
           postal_code: string | null
+          service_type: string | null
           short_description: string | null
           sic_codes: string | null
           state: string | null
@@ -95,6 +96,7 @@ export type Database = {
           num_employees?: string | null
           phone?: string | null
           postal_code?: string | null
+          service_type?: string | null
           short_description?: string | null
           sic_codes?: string | null
           state?: string | null
@@ -122,6 +124,7 @@ export type Database = {
           num_employees?: string | null
           phone?: string | null
           postal_code?: string | null
+          service_type?: string | null
           short_description?: string | null
           sic_codes?: string | null
           state?: string | null
