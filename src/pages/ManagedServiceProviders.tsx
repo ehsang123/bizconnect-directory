@@ -1,5 +1,35 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { MainLayout } from "@/components/layout/MainLayout";
+import { Globe2, Users, MapPin, CalendarDays } from "lucide-react";
+
+type Company = Tables<"companies">;
+
+const ITEMS_PER_PAGE = 40;
+
+const EMPLOYEE_RANGES = [
+  { value: "1-10", label: "1 - 10 employees", min: 1, max: 10 },
+  { value: "11-50", label: "11 - 50 employees", min: 11, max: 50 },
+  { value: "51-200", label: "51 - 200 employees", min: 51, max: 200 },
+  { value: "200+", label: "200+ employees", min: 201, max: Infinity },
+] as const;
 
 const useSeo = () => {
   useEffect(() => {
@@ -28,21 +58,417 @@ const useSeo = () => {
 const ManagedServiceProviders = () => {
   useSeo();
 
+  const [search, setSearch] = useState("");
+  const [country, setCountry] = useState<string>("all");
+  const [industry, setIndustry] = useState<string>("all");
+  const [employees, setEmployees] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [initialCompanies] = useState<Company[] | undefined>(() => {
+    if (typeof window === "undefined") return undefined;
+    try {
+      const stored = window.localStorage.getItem("companies_cache_msp_v1");
+      return stored ? (JSON.parse(stored) as Company[]) : undefined;
+    } catch {
+      return undefined;
+    }
+  });
+
+  const getDescriptionPreview = (text: string, maxLength = 80) => {
+    if (!text) return "";
+    const normalized = text.replace(/\s+/g, " ").trim();
+    if (normalized.length <= maxLength) return normalized;
+    return normalized.slice(0, maxLength).replace(/[,;:]?\s*$/, "") + "...";
+  };
+
+  const { data: companies, isLoading } = useQuery({
+    queryKey: ["companies", "approved", "msp"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("companies")
+        .select(
+          "id, company_name, industry, num_employees, short_description, country, city, founded_year, technologies, website, logo_url, status, service_type",
+        )
+        .eq("status", "approved")
+        .eq("service_type", "msp")
+        .order("company_name", { ascending: true });
+
+      if (error) throw error;
+
+      const typedData = data as Company[];
+      if (typeof window !== "undefined") {
+        try {
+          window.localStorage.setItem("companies_cache_msp_v1", JSON.stringify(typedData));
+        } catch {
+          // ignore cache errors
+        }
+      }
+
+      return typedData;
+    },
+    initialData: initialCompanies,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const { countries, industries, filtered } = useMemo(() => {
+    const list = companies ?? [];
+
+    const countriesSet = new Set<string>();
+    const industriesSet = new Set<string>();
+
+    const filteredList = list.filter((company) => {
+      if (company.country) countriesSet.add(company.country);
+      if (company.industry) industriesSet.add(company.industry);
+
+      const matchesSearch =
+        !search.trim() ||
+        company.company_name.toLowerCase().includes(search.toLowerCase()) ||
+        (company.industry ?? "").toLowerCase().includes(search.toLowerCase()) ||
+        (company.technologies ?? "").toLowerCase().includes(search.toLowerCase());
+
+      const matchesCountry = country === "all" || company.country === country;
+      const matchesIndustry = industry === "all" || company.industry === industry;
+
+      let matchesEmployees = true;
+      if (employees !== "all") {
+        const range = EMPLOYEE_RANGES.find((r) => r.value === employees);
+        if (range) {
+          const numericEmployees = company.num_employees
+            ? parseInt(company.num_employees.replace(/[^0-9]/g, ""), 10)
+            : undefined;
+
+          matchesEmployees = Boolean(
+            numericEmployees &&
+              Number.isFinite(numericEmployees) &&
+              numericEmployees >= range.min &&
+              numericEmployees <= range.max,
+          );
+        }
+      }
+
+      return matchesSearch && matchesCountry && matchesIndustry && matchesEmployees;
+    });
+
+    return {
+      countries: Array.from(countriesSet).sort(),
+      industries: Array.from(industriesSet).sort(),
+      filtered: filteredList,
+    };
+  }, [companies, search, country, industry, employees]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, country, industry, employees]);
+
+  const { paginatedCompanies, totalPages } = useMemo(() => {
+    const totalPagesCalc = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+    const safePage = Math.min(currentPage, totalPagesCalc);
+    const start = (safePage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+
+    return {
+      paginatedCompanies: filtered.slice(start, end),
+      totalPages: totalPagesCalc,
+    };
+  }, [filtered, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <MainLayout>
-      <section className="container py-10 md:py-16">
-        <div className="max-w-3xl space-y-4">
+      <section className="container py-8 md:py-10">
+        <div className="mb-6 space-y-2">
           <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
             Managed Service Providers (MSPs)
           </h1>
-          <p className="text-muted-foreground">
-            This section will host your dedicated MSP directory. You can add filters, categories and
-            detailed profiles for managed service providers here.
-          </p>
           <p className="text-sm text-muted-foreground">
-            For now this is a placeholder page so you can start planning content and structure. We can
-            later connect this to data in your backend the same way the main directory works.
+            Browse approved MSP partners. Use filters for country, industry and company size to
+            narrow down the right managed service provider.
           </p>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[280px,1fr]">
+          {/* Filters sidebar */}
+          <aside className="space-y-6 rounded-lg border bg-card p-4 shadow-sm">
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="search">
+                Company Name
+              </label>
+              <Input
+                id="search"
+                placeholder="Search by name, industry, or technology"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Country</label>
+              <Select value={country} onValueChange={setCountry}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All countries" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All countries</SelectItem>
+                  {countries.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Industry</label>
+              <Select value={industry} onValueChange={setIndustry}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All industries" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All industries</SelectItem>
+                  {industries.map((ind) => (
+                    <SelectItem key={ind} value={ind}>
+                      {ind}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Employees</label>
+              <Select value={employees} onValueChange={setEmployees}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All sizes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All sizes</SelectItem>
+                  {EMPLOYEE_RANGES.map((range) => (
+                    <SelectItem key={range.value} value={range.value}>
+                      {range.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </aside>
+
+          {/* Results column */}
+          <div className="space-y-4">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div>
+                <h2 className="text-xl font-semibold tracking-tight">All MSPs</h2>
+                <p className="text-sm text-muted-foreground">
+                  {isLoading
+                    ? "Loading approved companies..."
+                    : `${filtered.length} approved compan${filtered.length === 1 ? "y" : "ies"} found`}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Sort by:</span>
+                <Badge variant="outline">Recommended</Badge>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {isLoading && (
+                <Card>
+                  <CardContent className="py-6 text-center text-muted-foreground">
+                    Loading directory...
+                  </CardContent>
+                </Card>
+              )}
+
+              {!isLoading && filtered.length === 0 && (
+                <Card>
+                  <CardContent className="py-6 text-center text-muted-foreground">
+                    No companies match your filters yet. Try adjusting your search.
+                  </CardContent>
+                </Card>
+              )}
+
+              {!isLoading &&
+                paginatedCompanies.map((company) => (
+                  <Card key={company.id} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-stretch">
+                    <div className="flex flex-1 items-start gap-4">
+                      {company.logo_url && (
+                        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border bg-muted sm:h-14 sm:w-14">
+                          <img
+                            src={company.logo_url}
+                            alt={`${company.company_name} logo`}
+                            className="h-full w-full object-contain"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex-1 space-y-3">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <div>
+                            <CardTitle className="text-base font-semibold md:text-lg">
+                              {company.company_name}
+                            </CardTitle>
+                            {company.industry && (
+                              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                {company.industry}
+                              </p>
+                            )}
+                          </div>
+                          {company.num_employees && (
+                            <Badge variant="outline" className="text-xs">
+                              {company.num_employees}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {company.short_description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {getDescriptionPreview(company.short_description)}
+                          </p>
+                        )}
+
+                        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+                          {company.num_employees && (
+                            <span className="inline-flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              <span>{company.num_employees} employees</span>
+                            </span>
+                          )}
+                          {company.country && (
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              <span>
+                                {company.city ? `${company.city}, ` : ""}
+                                {company.country}
+                              </span>
+                            </span>
+                          )}
+                          {company.founded_year && (
+                            <span className="inline-flex items-center gap-1">
+                              <CalendarDays className="h-3 w-3" />
+                              <span>Founded {company.founded_year}</span>
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                          {company.technologies &&
+                            company.technologies
+                              .split(",")
+                              .map((tech) => tech.trim())
+                              .filter(Boolean)
+                              .slice(0, 4)
+                              .map((tech) => (
+                                <Badge key={tech} variant="outline">
+                                  {tech}
+                                </Badge>
+                              ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 sm:w-40">
+                      {company.website && (
+                        <Button asChild size="sm" className="w-full">
+                          <a
+                            href={company.website}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center justify-center gap-1"
+                          >
+                            <Globe2 className="h-3 w-3" />
+                            <span>Visit Website</span>
+                          </a>
+                        </Button>
+                      )}
+                      <Button asChild size="sm" variant="outline" className="w-full">
+                        <Link to={`/companies/${company.id}`}>View Profile</Link>
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+
+              {!isLoading && totalPages > 1 && (
+                <div className="flex justify-center pt-4">
+                  <Pagination>
+                    <PaginationContent>
+                      {currentPage > 1 && (
+                        <PaginationItem>
+                          <PaginationPrevious
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handlePageChange(Math.max(1, currentPage - 1));
+                            }}
+                          />
+                        </PaginationItem>
+                      )}
+
+                      {(() => {
+                        const windowSize = 5;
+                        const pages: (number | "ellipsis")[] = [];
+
+                        if (totalPages <= windowSize + 2) {
+                          for (let i = 1; i <= totalPages; i++) pages.push(i);
+                        } else {
+                          pages.push(1);
+                          let start = Math.max(2, currentPage - Math.floor(windowSize / 2));
+                          let end = Math.min(totalPages - 1, start + windowSize - 1);
+
+                          if (end === totalPages - 1) {
+                            start = Math.max(2, end - windowSize + 1);
+                          }
+
+                          if (start > 2) pages.push("ellipsis");
+                          for (let i = start; i <= end; i++) pages.push(i);
+                          if (end < totalPages - 1) pages.push("ellipsis");
+                          pages.push(totalPages);
+                        }
+
+                        return pages.map((page, idx) =>
+                          page === "ellipsis" ? (
+                            <PaginationItem key={`ellipsis-${idx}`}>
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                          ) : (
+                            <PaginationItem key={page}>
+                              <PaginationLink
+                                href="#"
+                                isActive={page === currentPage}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handlePageChange(page);
+                                }}
+                              >
+                                {page}
+                              </PaginationLink>
+                            </PaginationItem>
+                          ),
+                        );
+                      })()}
+
+                      {currentPage < totalPages && (
+                        <PaginationItem>
+                          <PaginationNext
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handlePageChange(Math.min(totalPages, currentPage + 1));
+                            }}
+                          />
+                        </PaginationItem>
+                      )}
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </section>
     </MainLayout>

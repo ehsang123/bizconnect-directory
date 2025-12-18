@@ -30,9 +30,17 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json();
     const csv: string | undefined = body?.csv;
+    const serviceType: string | undefined = body?.service_type;
 
     if (!csv || typeof csv !== "string") {
       return new Response(JSON.stringify({ error: "Missing csv string in body" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!serviceType || typeof serviceType !== "string") {
+      return new Response(JSON.stringify({ error: "Missing service_type in body" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -139,6 +147,7 @@ Deno.serve(async (req) => {
         founded_year: get(idxFounded) || null,
         logo_url: (get(idxLogo) || "").replace(/\\\./g, ".") || null,
         status: "approved",
+        service_type: serviceType,
       });
     }
 
