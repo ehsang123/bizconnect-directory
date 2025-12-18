@@ -22,7 +22,7 @@ const setSeo = () => {
     document.title = "B2B Channel Partner Directory | VARs, MSPs & MSSPs";
 
     const description =
-      "Discover verified VARs, MSPs, MSSPs, cloud providers and more with filters for industry, size and location.";
+      "Find the right managed service providers (MSPs) and managed security service providers (MSSPs) first — plus VARs, cloud providers and more, filtered by industry, size and location.";
     let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     if (!meta) {
       meta = document.createElement("meta");
@@ -60,12 +60,12 @@ const Index = () => {
             <div className="grid gap-10 md:grid-cols-2 md:items-center">
               <div className="space-y-5 animate-fade-in">
                 <h1 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-                  Discover Verified VARs, MSPs, MSSPs &amp; Cloud Partners Instantly
+                  Find High-Quality MSPs &amp; MSSPs for Your Next Project
                 </h1>
                 <p className="text-base text-muted-foreground md:text-lg">
-                  Find managed service providers, security partners, cloud providers and value added
-                  resellers in one place. Filter by location, size and specialization to match the
-                  right channel partner for your business.
+                  Start with managed service providers (MSPs) and managed security service providers (MSSPs)
+                  that match your stack, security requirements and geography, then expand into VARs,
+                  cloud providers and ISVs as your channel strategy grows.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button
@@ -148,16 +148,18 @@ const Index = () => {
                   Channel Partner Ecosystem
                 </p>
                 <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
-                  Explore Our IT Channel Partner Categories
+                  Start with MSPs &amp; MSSPs, Then Explore the Full Channel
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Drill down into specialized partner types like MSPs, MSSPs, VARs, CSPs and more. Each
-                  category will host its own curated directory.
+                  Your core relationships usually begin with the teams that run your infrastructure
+                  and your security operations. From there, extend into VARs, cloud providers,
+                  ISVs and systems integrators as your program matures.
                 </p>
               </div>
             </div>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {/* MSP - featured first */}
               <Link to="/services/managed-service-providers" className="group block">
                 <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
                   <CardHeader className="flex flex-row items-center gap-3 pb-3">
@@ -165,31 +167,16 @@ const Index = () => {
                       <Users className="h-4 w-4" />
                     </div>
                     <div>
-                      <CardTitle className="text-sm">Managed Service Providers</CardTitle>
+                      <CardTitle className="text-sm">Managed Service Providers (MSPs)</CardTitle>
                       <CardDescription className="text-xs">
-                        MSPs offering end-to-end IT management.
+                        End-to-end IT operations and infrastructure partners.
                       </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
-              <Link to="/services/value-added-resellers" className="group block">
-                <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
-                  <CardHeader className="flex flex-row items-center gap-3 pb-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:scale-110 group-hover:bg-primary/20">
-                      <Globe2 className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-sm">Value Added Resellers</CardTitle>
-                      <CardDescription className="text-xs">
-                        Resellers adding services and integrations.
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-                </Card>
-              </Link>
-
+              {/* MSSP - featured second */}
               <Link to="/services/managed-security-services" className="group block">
                 <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
                   <CardHeader className="flex flex-row items-center gap-3 pb-3">
@@ -197,9 +184,26 @@ const Index = () => {
                       <ShieldCheck className="h-4 w-4" />
                     </div>
                     <div>
-                      <CardTitle className="text-sm">Managed Security Services Providers</CardTitle>
+                      <CardTitle className="text-sm">Managed Security Services Providers (MSSPs)</CardTitle>
                       <CardDescription className="text-xs">
-                        Security-focused MSSPs and SOC partners.
+                        Security operations, MDR, SOC and incident response.
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
+
+              {/* VARs */}
+              <Link to="/services/value-added-resellers" className="group block">
+                <Card className="h-full cursor-pointer border border-transparent bg-gradient-to-br from-transparent via-transparent to-transparent transition hover:-translate-y-1 hover:border-primary/40 hover:from-primary/5 hover:via-transparent hover:to-transparent hover:shadow-lg">
+                  <CardHeader className="flex flex-row items-center gap-3 pb-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:scale-110 group-hover:bg-primary/20">
+                      <Globe2 className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-sm">Value Added Resellers (VARs)</CardTitle>
+                      <CardDescription className="text-xs">
+                        Resellers adding services, integrations and local support.
                       </CardDescription>
                     </div>
                   </CardHeader>
@@ -269,6 +273,73 @@ const Index = () => {
                   </CardHeader>
                 </Card>
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* MSP & MSSP focused content section */}
+        <section className="bg-gradient-to-b from-background via-primary/5 to-background">
+          <div className="container py-10 md:py-14">
+            <div className="grid gap-8 md:grid-cols-2 md:items-center">
+              <div className="space-y-4">
+                <p className="text-xs font-semibold tracking-wide text-primary uppercase">
+                  Why Start with MSPs &amp; MSSPs
+                </p>
+                <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+                  Build a resilient foundation for operations and security
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  The right MSP keeps your day-to-day infrastructure running reliably, while the right
+                  MSSP defends you against evolving threats. Together they form the core of a modern
+                  IT operating model, whether you&apos;re in SaaS, finance, manufacturing or the public sector.
+                </p>
+                <div className="grid gap-3 text-sm sm:grid-cols-2">
+                  <div className="rounded-lg border bg-background/60 p-3 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                      Managed Service Providers (MSPs)
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Help desk, endpoint management, backups, patching, cloud tenancy and more — all in
+                      one managed relationship.
+                    </p>
+                  </div>
+                  <div className="rounded-lg border bg-background/60 p-3 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                      Managed Security Services (MSSPs)
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      24/7 monitoring, SOC, SIEM, MDR and incident response to strengthen your security posture.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 text-sm">
+                <div className="rounded-xl border bg-background/70 p-4 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                    How teams use this directory
+                  </p>
+                  <ul className="mt-2 space-y-2 text-xs text-muted-foreground">
+                    <li>
+                      • Shortlist 3–5 MSPs or MSSPs in your target region and industry.
+                    </li>
+                    <li>
+                      • Compare capabilities like SOC coverage, certifications and tool stack.
+                    </li>
+                    <li>
+                      • Expand into VARs and cloud providers once your core operations are covered.
+                    </li>
+                  </ul>
+                </div>
+                <div className="flex flex-wrap gap-3 text-xs">
+                  <Button asChild size="sm" className="shadow-sm">
+                    <Link to="/services/managed-service-providers">Browse MSP directory</Link>
+                  </Button>
+                  <Button asChild size="sm" variant="outline" className="shadow-sm">
+                    <Link to="/services/managed-security-services">Browse MSSP directory</Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
