@@ -109,21 +109,8 @@ const ManagedServiceProviders = () => {
     refetchOnWindowFocus: false,
   });
 
-  const isMspCompany = (company: Company) => {
-    const text = (
-      `${company.industry ?? ""} ${company.keywords ?? ""} ${company.technologies ?? ""}`
-    ).toLowerCase();
-
-    return (
-      text.includes("managed service provider") ||
-      text.includes("managed services provider") ||
-      text.includes("managed services") ||
-      text.includes("msp")
-    );
-  };
-
   const { countries, industries, filtered } = useMemo(() => {
-    const baseList = (companies ?? []).filter(isMspCompany);
+    const baseList = companies ?? [];
 
     const countriesSet = new Set<string>();
     const industriesSet = new Set<string>();
