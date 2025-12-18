@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,9 +7,20 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 
 type Company = Tables<"companies">;
+
+const SERVICE_TYPES = [
+  { value: "msp", label: "Managed Service Providers (MSP)" },
+  { value: "mssp", label: "Managed Security Service Providers (MSSP)" },
+  { value: "var", label: "Value Added Resellers (VAR)" },
+  { value: "csp", label: "Cloud Service Providers" },
+  { value: "isv", label: "Independent Software Vendors (ISV)" },
+  { value: "aws", label: "Amazon Web Services Partners" },
+  { value: "systems_integrator", label: "Systems Integrators" },
+] as const;
 
 const useSeo = () => {
   useEffect(() => {
@@ -39,6 +50,8 @@ const AdminDashboard = () => {
   useSeo();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedServiceType, setSelectedServiceType] = useState<string>("msp");
+  const [file, setFile] = useState<File | null>(null);
 
   const { data: pendingCompanies, isLoading } = useQuery({
     queryKey: ["companies", "pending"],
@@ -89,7 +102,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleImport = async (file: File | null) => {
+  const handleImport = async () => {
     if (!file) {
       toast({
         title: "No file selected",
@@ -98,10 +111,18 @@ const AdminDashboard = () => {
       return;
     }
 
+    if (!selectedServiceType) {
+      toast({
+        title: "No service category selected",
+        description: "Please choose which service category these companies belong to.",
+      });
+      return;
+    }
+
     try {
       const text = await file.text();
       const { data, error } = await supabase.functions.invoke("import-companies", {
-        body: { csv: text },
+        body: { csv: text, service_type: selectedServiceType },
       });
 
       if (error) {
@@ -118,7 +139,7 @@ const AdminDashboard = () => {
         title: "Import complete",
         description: `Inserted ${data?.inserted ?? 0} companies, skipped ${
           data?.skipped ?? 0
-        } existing ones.`,
+        } rows without a name.`,
       });
 
       queryClient.invalidateQueries({ queryKey: ["companies", "approved"] });
@@ -149,18 +170,40 @@ const AdminDashboard = () => {
               <CardHeader>
                 <CardTitle className="text-base">Bulk import companies from CSV</CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Export your Excel file as CSV and upload it here. Existing companies (by name or
-                  website) will be skipped automatically.
-                </p>
-                <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
+              <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>Export your Excel file as CSV and upload it here.</p>
+                  <p>
+                    All companies in the file will be imported as
+                    <span className="font-medium"> approved</span> into the selected service
+                    directory.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                  <Select
+                    value={selectedServiceType}
+                    onValueChange={(value) => setSelectedServiceType(value)}
+                  >
+                    <SelectTrigger className="w-64">
+                      <SelectValue placeholder="Select service category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SERVICE_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <input
                     type="file"
                     accept=".csv,text/csv"
-                    onChange={(e) => handleImport(e.target.files?.[0] ?? null)}
                     className="text-sm"
+                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                   />
+                  <Button size="sm" onClick={handleImport}>
+                    Import
+                  </Button>
                 </div>
               </CardContent>
             </Card>
