@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +39,7 @@ const AdminDashboard = () => {
   useSeo();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isImporting, setIsImporting] = useState(false);
 
   const { data: pendingCompanies, isLoading } = useQuery({
     queryKey: ["companies", "pending"],
@@ -98,6 +99,8 @@ const AdminDashboard = () => {
       return;
     }
 
+    setIsImporting(true);
+
     try {
       const text = await file.text();
       const { data, error } = await supabase.functions.invoke("import-companies", {
@@ -116,9 +119,9 @@ const AdminDashboard = () => {
 
       toast({
         title: "Import complete",
-        description: `Inserted ${data?.inserted ?? 0} companies, skipped ${
+        description: `Inserted ${data?.inserted ?? 0} companies. Skipped ${
           data?.skipped ?? 0
-        } existing ones.`,
+        } rows without a company name.`,
       });
 
       queryClient.invalidateQueries({ queryKey: ["companies", "approved"] });
@@ -129,6 +132,8 @@ const AdminDashboard = () => {
         description: "Unexpected error while reading or sending the file.",
         variant: "destructive",
       });
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -149,20 +154,24 @@ const AdminDashboard = () => {
               <CardHeader>
                 <CardTitle className="text-base">Bulk import companies from CSV</CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Export your Excel file as CSV and upload it here. Existing companies (by name or
-                  website) will be skipped automatically.
-                </p>
-                <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
-                  <input
-                    type="file"
-                    accept=".csv,text/csv"
-                    onChange={(e) => handleImport(e.target.files?.[0] ?? null)}
-                    className="text-sm"
-                  />
-                </div>
-              </CardContent>
+               <CardContent className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                 <p className="text-sm text-muted-foreground">
+                   Export your Excel file as CSV and upload it here. All rows with a company name
+                   will be imported exactly as they appear.
+                 </p>
+                 <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
+                   <input
+                     type="file"
+                     accept=".csv,text/csv"
+                     onChange={(e) => handleImport(e.target.files?.[0] ?? null)}
+                     className="text-sm"
+                     disabled={isImporting}
+                   />
+                   {isImporting && (
+                     <span className="text-xs text-muted-foreground">Importing companies...</span>
+                   )}
+                 </div>
+               </CardContent>
             </Card>
 
             {isLoading && <p className="text-muted-foreground">Loading pending submissions...</p>}
