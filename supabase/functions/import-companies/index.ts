@@ -78,10 +78,7 @@ Deno.serve(async (req) => {
 
     const indexOf = (name: string) => header.indexOf(name);
 
-    const idxName =
-      indexOf("Company Name for Emails") >= 0
-        ? indexOf("Company Name for Emails")
-        : indexOf("Company Names for Emails");
+    const idxName = indexOf("Company Name for Emails");
     const idxEmployees = indexOf("# Employees");
     const idxIndustry = indexOf("Industry");
     const idxWebsite = indexOf("Website");
