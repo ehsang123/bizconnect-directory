@@ -1,10 +1,19 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useEffect as ReactUseEffect } from "react";
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MainLayout } from "@/components/layout/MainLayout";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import {
   Globe2,
   Users,
@@ -17,12 +26,23 @@ import {
   PanelLeft,
 } from "lucide-react";
 
+type Company = Tables<"companies">;
+
+const SERVICE_TYPE_LABEL: Record<string, string> = {
+  msp: "MSP partner",
+  mssp: "MSSP partner",
+  var: "VAR partner",
+  csp: "CSP partner",
+  isv: "ISV partner",
+  si: "Systems Integrator partner",
+};
+
 const setSeo = () => {
   ReactUseEffect(() => {
-    document.title = "B2B Channel Partner Directory | VARs, MSPs & MSSPs";
+    document.title = "IT Channel Partner Directory | MSP, MSSP, VAR, CSP";
 
     const description =
-      "Find the right managed service providers (MSPs) and managed security service providers (MSSPs) first — plus VARs, cloud providers and more, filtered by industry, size and location.";
+      "IT channel partner directory of MSP, MSSP, VAR, CSP, ISV and SI partners to find trusted technology providers.";
     let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     if (!meta) {
       meta = document.createElement("meta");
@@ -44,6 +64,26 @@ const setSeo = () => {
 const Index = () => {
   setSeo();
 
+  const { data: featuredCompanies } = useQuery({
+    queryKey: ["featured-companies-home"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("companies")
+        .select(
+          "id, company_name, short_description, technologies, country, city, website, logo_url, status, service_type",
+        )
+        .eq("status", "approved")
+        .in("service_type", ["msp", "mssp", "var", "csp"])
+        .order("updated_at", { ascending: false })
+        .limit(24);
+
+      if (error) throw error;
+      return (data as Company[]) ?? [];
+    },
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
   return (
     <MainLayout>
       <main className="min-h-screen bg-background">
@@ -60,12 +100,11 @@ const Index = () => {
             <div className="grid gap-10 md:grid-cols-2 md:items-center">
               <div className="space-y-5 animate-fade-in">
                 <h1 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-                  Find High-Quality MSPs &amp; MSSPs for Your Next Project
+                  IT Channel Partner Directory for MSP, MSSP, VAR &amp; CSP
                 </h1>
                 <p className="text-base text-muted-foreground md:text-lg">
-                  Start with managed service providers (MSPs) and managed security service providers (MSSPs)
-                  that match your stack, security requirements and geography, then expand into VARs,
-                  cloud providers and ISVs as your channel strategy grows.
+                  Browse a curated directory of MSPs, MSSPs, VARs, CSPs, ISVs and systems integrators to
+                  find trusted technology partners that match your industry, size and geography.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button
@@ -145,15 +184,15 @@ const Index = () => {
             <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
               <div className="max-w-2xl space-y-3">
                 <p className="text-xs font-semibold tracking-wide text-primary uppercase">
-                  Channel Partner Ecosystem
+                  Browse by partner type
                 </p>
                 <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
-                  Start with MSPs &amp; MSSPs, Then Explore the Full Channel
+                  Explore MSP, MSSP, VAR, CSP, ISV and SI partners
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Your core relationships usually begin with the teams that run your infrastructure
-                  and your security operations. From there, extend into VARs, cloud providers,
-                  ISVs and systems integrators as your program matures.
+                  Quickly jump into the partner category you care about most. Start with MSPs and MSSPs,
+                  then expand into VARs, cloud providers, independent software vendors and systems
+                  integrators.
                 </p>
               </div>
             </div>
@@ -274,6 +313,137 @@ const Index = () => {
                 </Card>
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* Featured partners section */}
+        <section className="border-b bg-muted/40">
+          <div className="container py-10 md:py-14">
+            <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+              <div className="max-w-2xl space-y-3">
+                <p className="text-xs font-semibold tracking-wide text-primary uppercase">
+                  Featured partners
+                </p>
+                <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+                  Trusted MSP, MSSP, VAR and CSP companies
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  A rotating selection of approved IT channel partners across core categories. Use this as
+                  a starting shortlist, then dive into full category directories.
+                </p>
+              </div>
+            </div>
+
+            {/* Carousel */}
+            {/* We intentionally keep this section subtle if there are no featured companies yet */}
+            {/* so the homepage still feels static and fast. */}
+            {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
+            {featuredCompanies && featuredCompanies.length > 0 ? (
+              <div className="mt-8">
+                <Carousel className="w-full">
+                  <div className="flex items-center justify-between gap-4 pb-4">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>{featuredCompanies.length} featured companies</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CarouselPrevious className="h-8 w-8" />
+                      <CarouselNext className="h-8 w-8" />
+                    </div>
+                  </div>
+                  <CarouselContent>
+                    {featuredCompanies.map((company) => {
+                      const technologies = (company.technologies ?? "")
+                        .split(",")
+                        .map((t) => t.trim())
+                        .filter(Boolean)
+                        .slice(0, 3);
+
+                      const serviceLabel = SERVICE_TYPE_LABEL[company.service_type ?? ""] ?? "IT channel partner";
+
+                      return (
+                        <CarouselItem key={company.id} className="md:basis-1/2 lg:basis-1/3">
+                          <Card className="h-full border bg-card/80 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                            <CardContent className="flex h-full flex-col gap-4 p-4">
+                              <div className="flex items-start gap-3">
+                                {company.logo_url && (
+                                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border bg-muted">
+                                    <img
+                                      src={company.logo_url}
+                                      alt={`${company.company_name} ${serviceLabel} logo`}
+                                      className="h-full w-full object-contain"
+                                      loading="lazy"
+                                    />
+                                  </div>
+                                )}
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <CardTitle className="truncate text-sm">
+                                      {company.company_name}
+                                    </CardTitle>
+                                    {company.service_type && (
+                                      <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
+                                        {serviceLabel}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {company.short_description && (
+                                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                                      {company.short_description}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="mt-auto space-y-2 text-xs text-muted-foreground">
+                                <div className="flex flex-wrap items-center gap-3">
+                                  {company.country && (
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <MapPin className="h-3 w-3" />
+                                      <span>
+                                        {company.city ? `${company.city}, ` : ""}
+                                        {company.country}
+                                      </span>
+                                    </span>
+                                  )}
+                                  {company.website && (
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <Globe2 className="h-3 w-3" />
+                                      <span>{company.website.replace(/^https?:\/\//, "")}</span>
+                                    </span>
+                                  )}
+                                </div>
+
+                                {technologies.length > 0 && (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {technologies.map((tech) => (
+                                      <Badge key={tech} variant="secondary" className="text-[10px]">
+                                        {tech}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                )}
+
+                                <div className="pt-2">
+                                  <Button asChild size="sm" className="h-7 text-[11px]">
+                                    <Link to={`/companies/${company.id}`}>
+                                      View profile
+                                    </Link>
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </CarouselItem>
+                      );
+                    })}
+                  </CarouselContent>
+                </Carousel>
+              </div>
+            ) : (
+              <p className="mt-8 text-xs text-muted-foreground">
+                Featured partners will appear here as companies are approved across key categories.
+              </p>
+            )}
           </div>
         </section>
 
