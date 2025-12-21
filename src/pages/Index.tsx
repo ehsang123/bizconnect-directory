@@ -334,115 +334,142 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Carousel */}
-            {/* We intentionally keep this section subtle if there are no featured companies yet */}
-            {/* so the homepage still feels static and fast. */}
+            {/* Per-category carousels. Hide a category completely if it has no companies. */}
             {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-            {featuredCompanies && featuredCompanies.length > 0 ? (
-              <div className="mt-8">
-                <Carousel className="w-full">
-                  <div className="flex items-center justify-between gap-4 pb-4">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>{featuredCompanies.length} featured companies</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CarouselPrevious className="h-8 w-8" />
-                      <CarouselNext className="h-8 w-8" />
-                    </div>
-                  </div>
-                  <CarouselContent>
-                    {featuredCompanies.map((company) => {
-                      const technologies = (company.technologies ?? "")
-                        .split(",")
-                        .map((t) => t.trim())
-                        .filter(Boolean)
-                        .slice(0, 3);
+            {featuredCompanies && featuredCompanies.length > 0 && (
+              <div className="mt-8 space-y-10">
+                {([
+                  { key: "msp", title: "Featured MSP partners" },
+                  { key: "mssp", title: "Featured MSSP partners" },
+                  { key: "var", title: "Featured VAR partners" },
+                  { key: "csp", title: "Featured CSP partners" },
+                ] as const).map(({ key, title }) => {
+                  const companiesForCategory = featuredCompanies.filter(
+                    (company) => company.service_type === key,
+                  );
 
-                      const serviceLabel = SERVICE_TYPE_LABEL[company.service_type ?? ""] ?? "IT channel partner";
+                  if (companiesForCategory.length === 0) return null;
 
-                      return (
-                        <CarouselItem key={company.id} className="md:basis-1/2 lg:basis-1/3">
-                          <Card className="h-full border bg-card/80 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                            <CardContent className="flex h-full flex-col gap-4 p-4">
-                              <div className="flex items-start gap-3">
-                                {company.logo_url && (
-                                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border bg-muted">
-                                    <img
-                                      src={company.logo_url}
-                                      alt={`${company.company_name} ${serviceLabel} logo`}
-                                      className="h-full w-full object-contain"
-                                      loading="lazy"
-                                    />
-                                  </div>
-                                )}
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <CardTitle className="truncate text-sm">
-                                      {company.company_name}
-                                    </CardTitle>
-                                    {company.service_type && (
-                                      <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
-                                        {serviceLabel}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  {company.short_description && (
-                                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                                      {company.short_description}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
+                  return (
+                    <article key={key} className="space-y-4">
+                      <header className="flex items-center justify-between gap-4">
+                        <div className="space-y-1">
+                          <h3 className="text-sm font-semibold tracking-tight md:text-base">
+                            {title}
+                          </h3>
+                          <p className="text-xs text-muted-foreground">
+                            {companiesForCategory.length} approved {key.toUpperCase()} companies in the
+                            directory.
+                          </p>
+                        </div>
+                      </header>
 
-                              <div className="mt-auto space-y-2 text-xs text-muted-foreground">
-                                <div className="flex flex-wrap items-center gap-3">
-                                  {company.country && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                      <MapPin className="h-3 w-3" />
-                                      <span>
-                                        {company.city ? `${company.city}, ` : ""}
-                                        {company.country}
-                                      </span>
-                                    </span>
-                                  )}
-                                  {company.website && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                      <Globe2 className="h-3 w-3" />
-                                      <span>{company.website.replace(/^https?:\/\//, "")}</span>
-                                    </span>
-                                  )}
-                                </div>
+                      <Carousel className="w-full">
+                        <div className="flex items-center justify-between gap-4 pb-4">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{companiesForCategory.length} featured companies</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CarouselPrevious className="h-8 w-8" />
+                            <CarouselNext className="h-8 w-8" />
+                          </div>
+                        </div>
+                        <CarouselContent>
+                          {companiesForCategory.map((company) => {
+                            const technologies = (company.technologies ?? "")
+                              .split(",")
+                              .map((t) => t.trim())
+                              .filter(Boolean)
+                              .slice(0, 3);
 
-                                {technologies.length > 0 && (
-                                  <div className="flex flex-wrap gap-1.5">
-                                    {technologies.map((tech) => (
-                                      <Badge key={tech} variant="secondary" className="text-[10px]">
-                                        {tech}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                )}
+                            const serviceLabel =
+                              SERVICE_TYPE_LABEL[company.service_type ?? ""] ?? "IT channel partner";
 
-                                <div className="pt-2">
-                                  <Button asChild size="sm" className="h-7 text-[11px]">
-                                    <Link to={`/companies/${company.id}`}>
-                                      View profile
-                                    </Link>
-                                  </Button>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </CarouselItem>
-                      );
-                    })}
-                  </CarouselContent>
-                </Carousel>
+                            return (
+                              <CarouselItem key={company.id} className="md:basis-1/2 lg:basis-1/3">
+                                <Card className="h-full border bg-card/80 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                                  <CardContent className="flex h-full flex-col gap-4 p-4">
+                                    <div className="flex items-start gap-3">
+                                      {company.logo_url && (
+                                        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border bg-muted">
+                                          <img
+                                            src={company.logo_url}
+                                            alt={`${company.company_name} ${serviceLabel} logo`}
+                                            className="h-full w-full object-contain"
+                                            loading="lazy"
+                                          />
+                                        </div>
+                                      )}
+                                      <div className="min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                          <CardTitle className="truncate text-sm">
+                                            {company.company_name}
+                                          </CardTitle>
+                                          {company.service_type && (
+                                            <Badge
+                                              variant="outline"
+                                              className="text-[10px] uppercase tracking-wide"
+                                            >
+                                              {serviceLabel}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        {company.short_description && (
+                                          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                                            {company.short_description}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    <div className="mt-auto space-y-2 text-xs text-muted-foreground">
+                                      <div className="flex flex-wrap items-center gap-3">
+                                        {company.country && (
+                                          <span className="inline-flex items-center gap-1.5">
+                                            <MapPin className="h-3 w-3" />
+                                            <span>
+                                              {company.city ? `${company.city}, ` : ""}
+                                              {company.country}
+                                            </span>
+                                          </span>
+                                        )}
+                                        {company.website && (
+                                          <span className="inline-flex items-center gap-1.5">
+                                            <Globe2 className="h-3 w-3" />
+                                            <span>{company.website.replace(/^https?:\/\//, "")}</span>
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      {technologies.length > 0 && (
+                                        <div className="flex flex-wrap gap-1.5">
+                                          {technologies.map((tech) => (
+                                            <Badge key={tech} variant="secondary" className="text-[10px]">
+                                              {tech}
+                                            </Badge>
+                                          ))}
+                                        </div>
+                                      )}
+
+                                      <div className="pt-2">
+                                        <Button asChild size="sm" className="h-7 text-[11px]">
+                                          <Link to={`/companies/${company.id}`}>
+                                            View profile
+                                          </Link>
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </CarouselItem>
+                            );
+                          })}
+                        </CarouselContent>
+                      </Carousel>
+                    </article>
+                  );
+                })}
               </div>
-            ) : (
-              <p className="mt-8 text-xs text-muted-foreground">
-                Featured partners will appear here as companies are approved across key categories.
-              </p>
             )}
           </div>
         </section>
